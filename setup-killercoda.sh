@@ -61,13 +61,29 @@ kubectl wait --for=condition=available deployment/argocd-server \
 echo -e "${GREEN}✔ Argo CD Server está disponible${NC}"
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PASO 3: Exponer Argo CD en NodePort 30007
+# PASO 3: Deshabilitar TLS y exponer Argo CD en NodePort 30007
 # ══════════════════════════════════════════════════════════════════════════════
 echo -e "\n${CYAN}${BOLD}══════════════════════════════════════════════════════════${NC}"
-echo -e "${CYAN}${BOLD}  PASO 3/5 — Exponiendo Argo CD en NodePort ${ARGOCD_NODEPORT}${NC}"
+echo -e "${CYAN}${BOLD}  PASO 3/5 — Configurando Argo CD en modo HTTP (insecure) + NodePort ${ARGOCD_NODEPORT}${NC}"
 echo -e "${CYAN}${BOLD}══════════════════════════════════════════════════════════${NC}\n"
 
-kubectl patch svc argocd-server -n "${ARGOCD_NAMESPACE}" -p "{
+# 3a. Deshabilitar la redirección HTTPS en argocd-server (causa principal de que no cargue)
+echo -e "${YELLOW}⏳ Deshabilitando TLS redirect en argocd-server…${NC}"
+kubectl -n "${ARGOCD_NAMESPACE}" patch deployment argocd-server \
+  --type='json' \
+  -p='[
+    {
+      "op": "add",
+      "path": "/spec/template/spec/containers/0/command",
+      "value": ["argocd-server","--insecure"]
+    }
+  ]'
+
+# Esperar a que el rollout con --insecure esté listo
+kubectl rollout status deployment/argocd-server -n "${ARGOCD_NAMESPACE}" --timeout=120s
+
+# 3b. Cambiar el Service a NodePort en el puerto fijo 30007
+kubectl patch svc argocd-server -n "${ARGOCD_NAMESPACE}" --type='merge' -p "{
   \"spec\": {
     \"type\": \"NodePort\",
     \"ports\": [
@@ -77,18 +93,12 @@ kubectl patch svc argocd-server -n "${ARGOCD_NAMESPACE}" -p "{
         \"targetPort\": 8080,
         \"nodePort\": ${ARGOCD_NODEPORT},
         \"protocol\": \"TCP\"
-      },
-      {
-        \"name\": \"https\",
-        \"port\": 443,
-        \"targetPort\": 8080,
-        \"protocol\": \"TCP\"
       }
     ]
   }
 }"
 
-echo -e "${GREEN}✔ Argo CD accesible en el puerto ${ARGOCD_NODEPORT}${NC}"
+echo -e "${GREEN}✔ Argo CD en modo HTTP (sin TLS) accesible en el puerto ${ARGOCD_NODEPORT}${NC}"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PASO 4: Obtener la contraseña inicial de Argo CD
@@ -150,7 +160,7 @@ echo -e "${GREEN}${BOLD}  ✅  ¡ENTORNO GitOps CONFIGURADO EXITOSAMENTE!       
 echo -e "${GREEN}${BOLD}══════════════════════════════════════════════════════════${NC}"
 echo ""
 echo -e "  ${BOLD}Argo CD UI:${NC}"
-echo -e "    URL:       ${CYAN}https://<KILLERCODA_HOST>:${ARGOCD_NODEPORT}${NC}"
+echo -e "    URL:       ${CYAN}http://<KILLERCODA_HOST>:${ARGOCD_NODEPORT}${NC}"
 echo -e "    Usuario:   ${YELLOW}admin${NC}"
 echo -e "    Contraseña:${YELLOW} ${ARGOCD_PASSWORD}${NC}"
 echo ""
