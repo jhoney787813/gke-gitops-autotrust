@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitectura GitOps con Kubernetes y Argo CD — Jhon Edison Hincapie Garcia</title>
+    <meta name="description" content="Demostración de Arquitectura GitOps sobre Kubernetes con Argo CD. Maestría en Arquitectura de Software, Politécnico Grancolombiano.">
+    <meta name="author" content="Jhon Edison Hincapie Garcia">
+    <meta property="og:title" content="Arquitectura GitOps con Kubernetes y Argo CD">
+    <meta property="og:description" content="Servicio de orquestación y automatización en la nube — Actividad Formativa Unidad 3">
+    <meta property="og:type" content="article">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #f8fafc;
+            padding: 32px 16px;
+            min-height: 100vh;
+        }
+        @media (max-width: 640px) {
+            body { padding: 16px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  POST PARA FORO DE CANVAS — Actividad Formativa Unidad 3                   ║
+║  Módulo: Contenerización de Aplicaciones — Orquestación de Contenedores    ║
+║  Autor: Jhon Edison Hincapie Garcia                                        ║
+║  Instrucciones: Copiar todo este HTML y pegarlo en el editor HTML del foro ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
+<!-- ═══════ CONTENEDOR PRINCIPAL ═══════ -->
+<div
+  style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 960px; margin: 0 auto; color: #1e293b; line-height: 1.7;">
+
+  <!-- ═══════ ENCABEZADO ═══════ -->
+  <div
+    style="background: linear-gradient(135deg, #0f172a 0%, #0d9488 100%); border-radius: 16px; padding: 36px 32px; margin-bottom: 28px; color: #fff;">
+    <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 3px; color: #5eead4; margin-bottom: 8px;">
+      Unidad 3 — Orquestación de Contenedores</div>
+    <h1 style="margin: 0 0 8px 0; font-size: 28px; font-weight: 800; color: #fff;">Arquitectura GitOps con Kubernetes y
+      Argo CD</h1>
+    <p style="margin: 0; font-size: 14px; color: #94a3b8;">Servicio seleccionado: <strong
+        style="color: #2dd4bf;">Kubernetes + Argo CD</strong> sobre clúster real en Killercoda</p>
+    <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px;">
+      <span
+        style="background: rgba(45,212,191,0.15); color: #2dd4bf; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(45,212,191,0.3);">Kubernetes</span>
+      <span
+        style="background: rgba(45,212,191,0.15); color: #2dd4bf; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(45,212,191,0.3);">Argo
+        CD</span>
+      <span
+        style="background: rgba(45,212,191,0.15); color: #2dd4bf; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(45,212,191,0.3);">GitOps</span>
+      <span
+        style="background: rgba(45,212,191,0.15); color: #2dd4bf; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(45,212,191,0.3);">Nginx</span>
+      <span
+        style="background: rgba(45,212,191,0.15); color: #2dd4bf; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(45,212,191,0.3);">Killercoda</span>
+    </div>
+  </div>
+
+  <!-- ═══════ DATOS DEL ESTUDIANTE ═══════ -->
+  <div
+    style="background: #f0fdfa; border-left: 4px solid #14b8a6; border-radius: 0 12px 12px 0; padding: 20px 24px; margin-bottom: 28px;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+      <tr>
+        <td style="padding: 4px 12px 4px 0; font-weight: 700; color: #0f766e; width: 160px;">Estudiante:</td>
+        <td style="padding: 4px 0;">Jhon Edison Hincapie Garcia</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 12px 4px 0; font-weight: 700; color: #0f766e;">Programa:</td>
+        <td style="padding: 4px 0;">Maestría en Arquitectura de Software</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 12px 4px 0; font-weight: 700; color: #0f766e;">Institución:</td>
+        <td style="padding: 4px 0;">Politécnico Grancolombiano</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 12px 4px 0; font-weight: 700; color: #0f766e;">Rol Profesional:</td>
+        <td style="padding: 4px 0;">Arquitecto de Software — AutoTrust CO</td>
+      </tr>
+      <tr>
+        <td style="padding: 4px 12px 4px 0; font-weight: 700; color: #0f766e;">Repositorio:</td>
+        <td style="padding: 4px 0;"><a href="https://github.com/jhoney787813/gke-gitops-autotrust" target="_blank"
+            style="color: #0d9488; text-decoration: underline;">github.com/jhoney787813/gke-gitops-autotrust</a></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 1: ¿QUÉ ES KUBERNETES Y ARGO CD? — FUNCIONAMIENTO            -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin-bottom: 32px;">
+    <h2
+      style="font-size: 22px; font-weight: 800; color: #0f172a; border-bottom: 3px solid #14b8a6; padding-bottom: 8px; margin-bottom: 16px;">
+      1. Servicio Seleccionado: Kubernetes + Argo CD
+    </h2>
+
+    <p><strong>Kubernetes</strong> (K8s) es una plataforma de código abierto para la <em>orquestación de
+        contenedores</em>, diseñada originalmente por Google y actualmente mantenida por la <strong>Cloud Native
+        Computing Foundation (CNCF)</strong>. Permite automatizar el despliegue, el escalado y la gestión de
+      aplicaciones contenerizadas en clústeres de servidores (Kubernetes Documentation, 2024).</p>
+
+    <p><strong>Argo CD</strong> es un controlador declarativo de entrega continua para Kubernetes que implementa el
+      patrón <strong>GitOps</strong>: un repositorio Git actúa como la <em>fuente de verdad</em> del estado deseado de
+      la infraestructura, y Argo CD se encarga de sincronizar continuamente el clúster para que coincida con lo definido
+      en Git (Argo Project, 2024).</p>
+
+    <div
+      style="background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0; font-size: 14px;">
+      <strong style="color: #92400e;">💡 ¿Por qué esta combinación?</strong><br>
+      Kubernetes orquesta los contenedores (scheduling, networking, storage), mientras que Argo CD automatiza la entrega
+      continua bajo el paradigma GitOps. Juntos eliminan la intervención manual en despliegues y garantizan que el
+      estado del clúster sea siempre reproducible desde Git.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 2: COMPONENTES PRINCIPALES                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin-bottom: 32px;">
+    <h2
+      style="font-size: 22px; font-weight: 800; color: #0f172a; border-bottom: 3px solid #14b8a6; padding-bottom: 8px; margin-bottom: 16px;">
+      2. Componentes y Funcionamiento
+    </h2>
+
+    <h3 style="font-size: 17px; font-weight: 700; color: #0f766e; margin: 20px 0 12px 0;">2.1 Componentes de Kubernetes
+    </h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;">
+      <thead>
+        <tr style="background: #0f172a; color: #fff;">
+          <th style="padding: 10px 14px; text-align: left; border-radius: 8px 0 0 0;">Componente</th>
+          <th style="padding: 10px 14px; text-align: left;">Capa</th>
+          <th style="padding: 10px 14px; text-align: left; border-radius: 0 8px 0 0;">Función</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>kube-apiserver</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Control Plane</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Punto de entrada REST para todas las
+            operaciones del clúster</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>etcd</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Control Plane</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Almacén clave-valor distribuido que guarda el
+            estado del clúster</td>
+        </tr>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>kube-scheduler</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Control Plane</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Asigna Pods a nodos según recursos
+            disponibles y restricciones</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>controller-manager</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Control Plane</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Ejecuta bucles de reconciliación
+            (Deployments, ReplicaSets, etc.)</td>
+        </tr>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>kubelet</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Worker Node</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Agente que garantiza que los contenedores
+            estén en ejecución</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>kube-proxy</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Worker Node</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Mantiene las reglas de red para la
+            comunicación Pod-a-Service</td>
+        </tr>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px;"><strong>Pod</strong></td>
+          <td style="padding: 8px 14px;">Workload</td>
+          <td style="padding: 8px 14px;">Unidad mínima de despliegue; encapsula uno o más contenedores</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size: 17px; font-weight: 700; color: #0f766e; margin: 20px 0 12px 0;">2.2 Componentes de Argo CD
+    </h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;">
+      <thead>
+        <tr style="background: #0f172a; color: #fff;">
+          <th style="padding: 10px 14px; text-align: left; border-radius: 8px 0 0 0;">Componente</th>
+          <th style="padding: 10px 14px; text-align: left; border-radius: 0 8px 0 0;">Función</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>API Server</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Expone la API gRPC/REST y sirve la interfaz
+            web</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>Repository Server</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Clona repositorios Git y genera los
+            manifiestos de Kubernetes</td>
+        </tr>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>Application Controller</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Monitorea el estado del clúster y reconcilia
+            contra el estado deseado en Git</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px;"><strong>ApplicationSet Controller</strong></td>
+          <td style="padding: 8px 14px;">Genera múltiples Applications a partir de plantillas
+            (multi-cluster/multi-tenant)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 3: CARACTERÍSTICAS DIFERENCIADORAS                            -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin-bottom: 32px;">
+    <h2
+      style="font-size: 22px; font-weight: 800; color: #0f172a; border-bottom: 3px solid #14b8a6; padding-bottom: 8px; margin-bottom: 16px;">
+      3. Características Diferenciadoras
+    </h2>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+      <!-- Tarjeta 1 -->
+      <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 20px;">
+        <div style="font-size: 24px; margin-bottom: 8px;">🔄</div>
+        <h4 style="margin: 0 0 6px 0; font-size: 15px; color: #0f766e;">Reconciliación Continua</h4>
+        <p style="margin: 0; font-size: 13px; color: #475569;">Argo CD compara constantemente el estado real del clúster
+          contra el estado declarado en Git. Cualquier desviación (drift) se corrige automáticamente con <code
+            style="background: #e2e8f0; padding: 1px 4px; border-radius: 3px; font-size: 12px;">selfHeal: true</code>.
+        </p>
+      </div>
+      <!-- Tarjeta 2 -->
+      <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 20px;">
+        <div style="font-size: 24px; margin-bottom: 8px;">📦</div>
+        <h4 style="margin: 0 0 6px 0; font-size: 15px; color: #0f766e;">Despliegue Declarativo</h4>
+        <p style="margin: 0; font-size: 13px; color: #475569;">Los manifiestos YAML definen <em>qué</em> debe existir,
+          no <em>cómo</em> crearlo. Kubernetes y Argo CD se encargan de converger al estado deseado.</p>
+      </div>
+      <!-- Tarjeta 3 -->
+      <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 20px;">
+        <div style="font-size: 24px; margin-bottom: 8px;">🛡️</div>
+        <h4 style="margin: 0 0 6px 0; font-size: 15px; color: #0f766e;">Self-Healing</h4>
+        <p style="margin: 0; font-size: 13px; color: #475569;">Si un Pod falla o es eliminado, el ReplicaSet de
+          Kubernetes lo recrea automáticamente para mantener las 3 réplicas configuradas.</p>
+      </div>
+      <!-- Tarjeta 4 -->
+      <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 20px;">
+        <div style="font-size: 24px; margin-bottom: 8px;">🔐</div>
+        <h4 style="margin: 0 0 6px 0; font-size: 15px; color: #0f766e;">Auditoría vía Git</h4>
+        <p style="margin: 0; font-size: 13px; color: #475569;">Cada cambio queda registrado en el historial de Git con
+          autor, fecha y mensaje de commit. Se puede hacer rollback a cualquier versión anterior.</p>
+      </div>
+      <!-- Tarjeta 5 -->
+      <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 20px;">
+        <div style="font-size: 24px; margin-bottom: 8px;">📊</div>
+        <h4 style="margin: 0 0 6px 0; font-size: 15px; color: #0f766e;">Dashboard Visual</h4>
+        <p style="margin: 0; font-size: 13px; color: #475569;">Argo CD ofrece una interfaz web que muestra en tiempo
+          real el árbol de recursos, estado de salud y gráfico de dependencias de la aplicación.</p>
+      </div>
+      <!-- Tarjeta 6 -->
+      <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 20px;">
+        <div style="font-size: 24px; margin-bottom: 8px;">🌐</div>
+        <h4 style="margin: 0 0 6px 0; font-size: 15px; color: #0f766e;">Multi-Cluster</h4>
+        <p style="margin: 0; font-size: 13px; color: #475569;">Argo CD puede gestionar múltiples clústeres de Kubernetes
+          desde una única instancia centralizada, ideal para arquitecturas multi-región.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 4: VENTAJAS Y DESVENTAJAS                                     -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin-bottom: 32px;">
+    <h2
+      style="font-size: 22px; font-weight: 800; color: #0f172a; border-bottom: 3px solid #14b8a6; padding-bottom: 8px; margin-bottom: 16px;">
+      4. Análisis de Ventajas y Desventajas
+    </h2>
+
+    <!-- Ventajas -->
+    <h3 style="font-size: 17px; font-weight: 700; color: #15803d; margin: 16px 0 12px 0;">✅ Ventajas</h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;">
+      <thead>
+        <tr style="background: #14532d; color: #fff;">
+          <th style="padding: 10px 14px; text-align: left; width: 30%; border-radius: 8px 0 0 0;">Ventaja</th>
+          <th style="padding: 10px 14px; text-align: left; border-radius: 0 8px 0 0;">Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: #f0fdf4;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #bbf7d0; font-weight: 600;">Portabilidad absoluta</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #bbf7d0;">Kubernetes ejecuta en cualquier nube pública
+            (AWS EKS, Azure AKS, GCP GKE), privada u on-premise. Evita <em>vendor lock-in</em> (Burns et al., 2022).
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #bbf7d0; font-weight: 600;">Escalabilidad horizontal
+          </td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #bbf7d0;">El HPA (Horizontal Pod Autoscaler) escala
+            automáticamente el número de réplicas según métricas de CPU, memoria o métricas personalizadas.</td>
+        </tr>
+        <tr style="background: #f0fdf4;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #bbf7d0; font-weight: 600;">Rollbacks instantáneos</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #bbf7d0;">Con GitOps, revertir un despliegue es tan
+            simple como hacer <code
+              style="background: #e2e8f0; padding: 1px 4px; border-radius: 3px; font-size: 12px;">git revert</code>.
+            Argo CD sincroniza automáticamente la versión anterior.</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #bbf7d0; font-weight: 600;">Ecosistema extenso</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #bbf7d0;">Más de 200 proyectos CNCF complementarios:
+            Prometheus (monitoreo), Istio (service mesh), Helm (empaquetado), Tekton (CI), entre otros.</td>
+        </tr>
+        <tr style="background: #f0fdf4;">
+          <td style="padding: 8px 14px; font-weight: 600;">Infraestructura como código</td>
+          <td style="padding: 8px 14px;">Toda la infraestructura está versionada y auditable en Git; elimina
+            configuraciones manuales y el problema de "works on my machine".</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Desventajas -->
+    <h3 style="font-size: 17px; font-weight: 700; color: #dc2626; margin: 16px 0 12px 0;">⚠️ Desventajas</h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;">
+      <thead>
+        <tr style="background: #7f1d1d; color: #fff;">
+          <th style="padding: 10px 14px; text-align: left; width: 30%; border-radius: 8px 0 0 0;">Desventaja</th>
+          <th style="padding: 10px 14px; text-align: left; border-radius: 0 8px 0 0;">Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: #fef2f2;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #fecaca; font-weight: 600;">Curva de aprendizaje alta
+          </td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #fecaca;">Kubernetes involucra más de 50 tipos de
+            recursos (Pods, Deployments, Services, Ingress, RBAC, CRDs…). Requiere conocimiento profundo de redes,
+            almacenamiento y seguridad (Lukša, 2022).</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #fecaca; font-weight: 600;">Overhead operacional</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #fecaca;">Para aplicaciones pequeñas, la complejidad de
+            mantener un clúster K8s puede superar los beneficios. Se necesitan equipos dedicados de plataforma (Platform
+            Engineering).</td>
+        </tr>
+        <tr style="background: #fef2f2;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #fecaca; font-weight: 600;">Consumo de recursos</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #fecaca;">El Control Plane (etcd, apiserver,
+            schedulers) consume recursos significativos. En entornos pequeños esto puede ser un factor de costo
+            relevante.</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; font-weight: 600;">Secretos en Git</td>
+          <td style="padding: 8px 14px;">GitOps requiere almacenar configuración en Git, pero los Secrets no deben ir en
+            texto plano. Se necesitan herramientas adicionales como Sealed Secrets o Vault (Limoncelli, 2021).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 5: EJEMPLO DE DESPLIEGUE — ARQUITECTURA                      -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin-bottom: 32px;">
+    <h2
+      style="font-size: 22px; font-weight: 800; color: #0f172a; border-bottom: 3px solid #14b8a6; padding-bottom: 8px; margin-bottom: 16px;">
+      5. Ejemplo de Despliegue — Aplicación Web Estática
+    </h2>
+
+    <p>Se desplegó una aplicación web estática (HTML + Tailwind CSS) servida por <strong>Nginx Alpine</strong> en un
+      clúster Kubernetes real de Killercoda, gestionada por <strong>Argo CD</strong> bajo el patrón GitOps.</p>
+
+    <!-- Diagrama de arquitectura en ASCII -->
+    <div style="background: #1e293b; border-radius: 12px; padding: 20px; margin: 16px 0; overflow-x: auto;">
+      <pre style="color: #94a3b8; font-family: 'Courier New', monospace; font-size: 12px; margin: 0; line-height: 1.6;">
+<span style="color: #5eead4;">┌─────────────────┐</span>         <span style="color: #5eead4;">┌──────────────────┐</span>         <span style="color: #5eead4;">┌─────────────────────────────┐</span>
+<span style="color: #5eead4;">│</span>  <span style="color: #fff;">Desarrollador</span>   <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>  <span style="color: #fff;">GitHub Repo</span>      <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>  <span style="color: #fff;">Clúster Kubernetes</span>          <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>  <span style="color: #94a3b8;">(Fuente de</span>      <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>  <span style="color: #94a3b8;">(Killercoda)</span>                <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>  <span style="color: #fbbf24;">git push</span> <span style="color: #5eead4;">───────────────▶</span>   <span style="color: #94a3b8;">Verdad)</span>       <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>                             <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>                  <span style="color: #5eead4;">│</span> <span style="color: #fbbf24;">◀── poll</span> <span style="color: #5eead4;">│</span>  <span style="color: #34d399;">┌─────────────────┐</span>  <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>  <span style="color: #94a3b8;">manifests/</span>      <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>  <span style="color: #34d399;">│</span> <span style="color: #fff;">Argo CD</span>         <span style="color: #34d399;">│</span>  <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>    <span style="color: #94a3b8;">app.yaml</span>      <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>  <span style="color: #34d399;">│</span> <span style="color: #94a3b8;">NodePort: 30007</span> <span style="color: #34d399;">│</span>  <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>                  <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">│</span>  <span style="color: #34d399;">└────────┬────────┘</span>  <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>         <span style="color: #5eead4;">└──────────────────┘</span>         <span style="color: #5eead4;">│</span>           <span style="color: #fbbf24;">│ sync</span>         <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>                                  <span style="color: #5eead4;">│</span>  <span style="color: #38bdf8;">┌────────▼────────┐</span>  <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>                                  <span style="color: #5eead4;">│</span>  <span style="color: #38bdf8;">│</span> <span style="color: #fff;">Deployment</span>      <span style="color: #38bdf8;">│</span>  <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>                                  <span style="color: #5eead4;">│</span>  <span style="color: #38bdf8;">│</span> <span style="color: #94a3b8;">3× nginx:alpine</span> <span style="color: #38bdf8;">│</span>  <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>  <span style="color: #fbbf24;">Navegador</span> <span style="color: #5eead4;">◀──────────────────────────────────────</span> <span style="color: #38bdf8;">│</span> <span style="color: #94a3b8;">NodePort: 32000</span> <span style="color: #38bdf8;">│</span>  <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">│</span>                 <span style="color: #5eead4;">│</span>                                  <span style="color: #5eead4;">│</span>  <span style="color: #38bdf8;">└─────────────────┘</span>  <span style="color: #5eead4;">│</span>
+<span style="color: #5eead4;">└─────────────────┘</span>                                  <span style="color: #5eead4;">└─────────────────────────────┘</span>
+      </pre>
+    </div>
+
+    <h3 style="font-size: 17px; font-weight: 700; color: #0f766e; margin: 20px 0 12px 0;">5.1 Estructura del repositorio
+    </h3>
+    <div
+      style="background: #1e293b; border-radius: 12px; padding: 16px 20px; font-family: 'Courier New', monospace; font-size: 13px; color: #e2e8f0; margin-bottom: 16px;">
+      <span style="color: #fbbf24;">gke-gitops-autotrust/</span><br>
+      ├── <span style="color: #38bdf8;">app/</span><br>
+      │&nbsp;&nbsp; └── <span
+        style="color: #34d399;">index.html</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+        style="color: #64748b;"># Sitio web (Tailwind CSS CDN)</span><br>
+      ├── <span style="color: #38bdf8;">manifests/</span><br>
+      │&nbsp;&nbsp; └── <span
+        style="color: #34d399;">app.yaml</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+        style="color: #64748b;"># ConfigMap + Deployment + Service</span><br>
+      └── <span style="color: #34d399;">setup-killercoda.sh</span>&nbsp;&nbsp;&nbsp;&nbsp;<span
+        style="color: #64748b;"># Script automatizado</span>
+    </div>
+
+    <h3 style="font-size: 17px; font-weight: 700; color: #0f766e; margin: 20px 0 12px 0;">5.2 Recursos Kubernetes
+      desplegados</h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px;">
+      <thead>
+        <tr style="background: #0f172a; color: #fff;">
+          <th style="padding: 10px 14px; text-align: left;">Recurso</th>
+          <th style="padding: 10px 14px; text-align: left;">Nombre</th>
+          <th style="padding: 10px 14px; text-align: left;">Configuración clave</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>ConfigMap</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><code
+              style="background: #e2e8f0; padding: 1px 4px; border-radius: 3px;">web-html-config</code></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">HTML embebido como dato; sin imagen Docker
+            personalizada</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>Deployment</strong></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><code
+              style="background: #e2e8f0; padding: 1px 4px; border-radius: 3px;">static-web-deployment</code></td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;"><strong>3 réplicas</strong>, imagen <code
+              style="background: #e2e8f0; padding: 1px 4px; border-radius: 3px;">nginx:alpine</code>, resource limits
+          </td>
+        </tr>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px;"><strong>Service</strong></td>
+          <td style="padding: 8px 14px;"><code
+              style="background: #e2e8f0; padding: 1px 4px; border-radius: 3px;">static-web-service</code></td>
+          <td style="padding: 8px 14px;">NodePort fijo en <strong>32000</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size: 17px; font-weight: 700; color: #0f766e; margin: 20px 0 12px 0;">5.3 Otros ejemplos de
+      aplicaciones desplegables con esta misma arquitectura</h3>
+    <p style="font-size: 14px;">La arquitectura GitOps con Kubernetes y Argo CD es agnóstica al tipo de aplicación. Se
+      puede usar para desplegar:</p>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px;">
+      <thead>
+        <tr style="background: #0f172a; color: #fff;">
+          <th style="padding: 10px 14px; text-align: left;">Tipo de Aplicación</th>
+          <th style="padding: 10px 14px; text-align: left;">Stack de ejemplo</th>
+          <th style="padding: 10px 14px; text-align: left;">Recursos K8s involucrados</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">API REST (microservicio)</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Node.js + Express / Spring Boot</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Deployment + Service + Ingress + HPA</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">SPA Frontend</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">React / Angular + Nginx</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">ConfigMap + Deployment + Service</td>
+        </tr>
+        <tr style="background: #f8fafc;">
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">Base de datos</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">PostgreSQL / MongoDB</td>
+          <td style="padding: 8px 14px; border-bottom: 1px solid #e2e8f0;">StatefulSet + PVC + Service (ClusterIP)</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 14px;">Pipeline de datos</td>
+          <td style="padding: 8px 14px;">Apache Kafka + Workers</td>
+          <td style="padding: 8px 14px;">StatefulSet + Deployment + ConfigMap + Secrets</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 6: VIDEO EXPLICATIVO                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin-bottom: 32px;">
+    <h2
+      style="font-size: 22px; font-weight: 800; color: #0f172a; border-bottom: 3px solid #14b8a6; padding-bottom: 8px; margin-bottom: 16px;">
+      6. Video Explicativo
+    </h2>
+
+    <div
+      style="background: #f0f9ff; border: 2px solid #7dd3fc; border-radius: 12px; padding: 24px; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 12px;">🎬</div>
+      <p style="font-size: 16px; font-weight: 700; color: #0c4a6e; margin: 0 0 8px 0;">Video demostrativo del despliegue
+        GitOps</p>
+      <p style="font-size: 13px; color: #475569; margin: 0 0 16px 0;">
+        El video muestra: instalación de Argo CD, sincronización desde GitHub, acceso a la aplicación web en puerto
+        32000, demostración de Self-Healing y ciclo completo de GitOps.
+      </p>
+      <!-- ═══ REEMPLAZAR ESTE ENLACE CON LA URL REAL DEL VIDEO ═══ -->
+      <a href="https://youtu.be/AE2_0pza7cg" target="_blank"
+        style="display: inline-block; background: linear-gradient(135deg, #0d9488, #0891b2); color: #fff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px;">
+        ▶&nbsp; Ver Video en YouTube
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 7: EVIDENCIA DE EJECUCIÓN                                     -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin-bottom: 32px;">
+    <h2
+      style="font-size: 22px; font-weight: 800; color: #0f172a; border-bottom: 3px solid #14b8a6; padding-bottom: 8px; margin-bottom: 16px;">
+      7. Comandos de Verificación (Evidencia)
+    </h2>
+
+    <p style="font-size: 14px;">Estos comandos se ejecutaron en la terminal de Killercoda como evidencia del despliegue
+      funcional:</p>
+
+    <div
+      style="background: #1e293b; border-radius: 12px; padding: 16px 20px; font-family: 'Courier New', monospace; font-size: 12px; color: #e2e8f0; margin-bottom: 12px; overflow-x: auto;">
+      <span style="color: #34d399;">$</span> kubectl get pods -l app=static-web<br>
+      <span
+        style="color: #94a3b8;">NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        READY&nbsp;&nbsp; STATUS&nbsp;&nbsp;&nbsp; RESTARTS&nbsp;&nbsp; AGE</span><br>
+      static-web-deployment-7f8c9d6b4-<span style="color: #fbbf24;">abc12</span>&nbsp;&nbsp; 1/1&nbsp;&nbsp;&nbsp;&nbsp;
+      <span style="color: #34d399;">Running</span>&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      2m<br>
+      static-web-deployment-7f8c9d6b4-<span style="color: #fbbf24;">def34</span>&nbsp;&nbsp; 1/1&nbsp;&nbsp;&nbsp;&nbsp;
+      <span style="color: #34d399;">Running</span>&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      2m<br>
+      static-web-deployment-7f8c9d6b4-<span style="color: #fbbf24;">ghi56</span>&nbsp;&nbsp; 1/1&nbsp;&nbsp;&nbsp;&nbsp;
+      <span style="color: #34d399;">Running</span>&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      2m
+    </div>
+
+    <div
+      style="background: #1e293b; border-radius: 12px; padding: 16px 20px; font-family: 'Courier New', monospace; font-size: 12px; color: #e2e8f0; margin-bottom: 12px; overflow-x: auto;">
+      <span style="color: #34d399;">$</span> kubectl get applications -n argocd<br>
+      <span style="color: #94a3b8;">NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SYNC
+        STATUS&nbsp;&nbsp; HEALTH STATUS</span><br>
+      autotrust-web&nbsp;&nbsp;&nbsp; <span
+        style="color: #34d399;">Synced</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+        style="color: #34d399;">Healthy</span>
+    </div>
+
+    <div
+      style="background: #1e293b; border-radius: 12px; padding: 16px 20px; font-family: 'Courier New', monospace; font-size: 12px; color: #e2e8f0; overflow-x: auto;">
+      <span style="color: #34d399;">$</span> kubectl get svc static-web-service<br>
+      <span
+        style="color: #94a3b8;">NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CLUSTER-IP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        PORT(S)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AGE</span><br>
+      static-web-service&nbsp;&nbsp; <span style="color: #fbbf24;">NodePort</span>&nbsp;&nbsp;&nbsp;
+      10.96.42.128&nbsp;&nbsp;&nbsp; 80:<span style="color: #34d399;">32000</span>/TCP&nbsp;&nbsp;&nbsp; 2m
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 8: REFERENCIAS BIBLIOGRÁFICAS                                 -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin-bottom: 32px;">
+    <h2
+      style="font-size: 22px; font-weight: 800; color: #0f172a; border-bottom: 3px solid #14b8a6; padding-bottom: 8px; margin-bottom: 16px;">
+      8. Referencias Bibliográficas
+    </h2>
+
+    <ol style="font-size: 13px; color: #334155; padding-left: 20px; line-height: 2;">
+      <li>Kubernetes Documentation. (2024). <em>Kubernetes Components</em>. Recuperado de <a
+          href="https://kubernetes.io/docs/concepts/overview/components/" target="_blank"
+          style="color: #0d9488;">https://kubernetes.io/docs/concepts/overview/components/</a></li>
+      <li>Argo Project. (2024). <em>Argo CD — Declarative GitOps CD for Kubernetes</em>. Recuperado de <a
+          href="https://argo-cd.readthedocs.io/en/stable/" target="_blank"
+          style="color: #0d9488;">https://argo-cd.readthedocs.io/en/stable/</a></li>
+      <li>Burns, B., Beda, J., Hightower, K., &amp; Evenson, D. (2022). <em>Kubernetes: Up and Running</em> (3rd ed.).
+        O'Reilly Media. ISBN: 978-1098110208.</li>
+      <li>Lukša, M. (2022). <em>Kubernetes in Action</em> (2nd ed.). Manning Publications. ISBN: 978-1617297618.</li>
+      <li>Limoncelli, T. A. (2021). <em>GitOps and Kubernetes: Continuous Deployment with Argo CD, Jenkins X, and
+          Flux</em>. Manning Publications. ISBN: 978-1617297274.</li>
+      <li>CNCF. (2024). <em>Cloud Native Landscape</em>. Recuperado de <a href="https://landscape.cncf.io/"
+          target="_blank" style="color: #0d9488;">https://landscape.cncf.io/</a></li>
+      <li>Beyer, B., Jones, C., Petoff, J., &amp; Murphy, N. R. (2016). <em>Site Reliability Engineering</em>. O'Reilly
+        Media. Recuperado de <a href="https://sre.google/sre-book/table-of-contents/" target="_blank"
+          style="color: #0d9488;">https://sre.google/sre-book/table-of-contents/</a></li>
+    </ol>
+  </div>
+
+  <!-- ═══════ PIE DEL POST ═══════ -->
+  <div
+    style="background: linear-gradient(135deg, #0f172a, #134e4a); border-radius: 12px; padding: 24px; text-align: center; color: #fff;">
+    <p style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700;">Jhon Edison Hincapie Garcia</p>
+    <p style="margin: 0 0 4px 0; font-size: 13px; color: #5eead4;">Maestría en Arquitectura de Software — Politécnico
+      Grancolombiano</p>
+    <p style="margin: 0; font-size: 12px; color: #64748b;">Arquitecto de Software · AutoTrust CO · 2026</p>
+    <div style="margin-top: 12px;">
+      <a href="https://github.com/jhoney787813/gke-gitops-autotrust" target="_blank"
+        style="color: #2dd4bf; font-size: 13px; text-decoration: underline;">📂 Ver Repositorio Completo en GitHub</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
