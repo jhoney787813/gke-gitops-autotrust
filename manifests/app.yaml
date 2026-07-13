@@ -1,0 +1,318 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  Manifiesto Kubernetes Unificado — GitOps AutoTrust CO                     ║
+# ║  Recursos: ConfigMap + Deployment (3 réplicas) + Service (NodePort 32000)  ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# Autor:   Jhon Edison Hincapie Garcia
+# Módulo:  Maestría en Arquitectura de Software — Politécnico Grancolombiano
+# Uso:     Argo CD sincroniza este archivo desde GitHub al clúster Killercoda
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 1. ConfigMap — Contenido HTML estático servido por Nginx
+# ──────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-html-config
+  namespace: default
+  labels:
+    app: static-web
+    project: autotrust-gitops
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="es">
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Demostración GitOps - AutoTrust CO</title>
+        <meta name="description"
+            content="Arquitectura GitOps sobre Kubernetes con Argo CD — Maestría en Arquitectura de Software, Politécnico Grancolombiano.">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            /* ── Animaciones personalizadas ── */
+            @keyframes float {
+                0%, 100% { transform: translateY(0); }
+                50%      { transform: translateY(-8px); }
+            }
+            @keyframes pulse-ring {
+                0%   { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.5); }
+                70%  { box-shadow: 0 0 0 12px rgba(45, 212, 191, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+            }
+            @keyframes slide-up {
+                from { opacity: 0; transform: translateY(30px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes gradient-shift {
+                0%, 100% { background-position: 0% 50%; }
+                50%      { background-position: 100% 50%; }
+            }
+            .animate-float     { animation: float 4s ease-in-out infinite; }
+            .animate-pulse-ring { animation: pulse-ring 2s ease-out infinite; }
+            .animate-slide-up   { animation: slide-up 0.8s ease-out both; }
+            .animate-gradient   { background-size: 200% 200%; animation: gradient-shift 6s ease infinite; }
+            .delay-200 { animation-delay: 0.2s; }
+            .delay-400 { animation-delay: 0.4s; }
+            .delay-600 { animation-delay: 0.6s; }
+        </style>
+    </head>
+    
+    <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+    
+        <!-- ════════════════════════════════════════════
+             HEADER
+        ════════════════════════════════════════════ -->
+        <header class="sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-lg">
+            <div class="max-w-6xl mx-auto flex justify-between items-center py-4 px-6">
+                <div class="flex items-center gap-3">
+                    <!-- Logo SVG -->
+                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
+                        <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold tracking-wider text-white">AUTOTRUST <span class="text-teal-400">CO</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="hidden sm:inline-flex text-xs bg-teal-500/10 text-teal-400 px-3 py-1.5 rounded-full border border-teal-500/20 font-mono tracking-wide">
+                        Killercoda + Argo CD
+                    </span>
+                    <div class="flex items-center gap-2 text-xs text-emerald-400">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+                        </span>
+                        Synced
+                    </div>
+                </div>
+            </div>
+        </header>
+    
+        <!-- ════════════════════════════════════════════
+             HERO SECTION
+        ════════════════════════════════════════════ -->
+        <main class="flex-grow">
+            <section class="relative overflow-hidden">
+                <!-- Fondo con gradiente animado -->
+                <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950/30 animate-gradient"></div>
+                <div class="absolute top-20 -left-40 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-10 -right-40 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl"></div>
+    
+                <div class="relative max-w-6xl mx-auto px-6 py-20 md:py-28">
+                    <div class="animate-slide-up space-y-6 max-w-3xl">
+                        <div class="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-teal-400 bg-teal-500/10 px-4 py-2 rounded-full border border-teal-500/20">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342"/></svg>
+                            Unidad 3 — Orquestación de Contenedores
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
+                            Arquitectura <span class="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">GitOps</span>
+                            sobre Kubernetes
+                        </h1>
+                        <p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
+                            Demostración práctica de despliegue continuo utilizando una filosofía declarativa.
+                            Sincronización automática de infraestructura mediante
+                            <strong class="text-slate-300">Argo CD</strong> y un clúster real en
+                            <strong class="text-slate-300">Killercoda</strong>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+    
+            <!-- ════════════════════════════════════════════
+                 PIPELINE GitOps — Tarjetas del flujo
+            ════════════════════════════════════════════ -->
+            <section class="max-w-6xl mx-auto px-6 pb-16">
+                <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-8">Flujo GitOps</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    
+                    <!-- Paso 1 -->
+                    <div class="animate-slide-up group relative p-6 rounded-2xl border border-slate-800 bg-slate-900/60 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/5">
+                        <div class="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"/></svg>
+                        </div>
+                        <h3 class="font-bold text-white mb-1">1. Git Push</h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">El desarrollador sube cambios al repositorio GitHub (fuente de verdad).</p>
+                    </div>
+    
+                    <!-- Paso 2 -->
+                    <div class="animate-slide-up delay-200 group relative p-6 rounded-2xl border border-slate-800 bg-slate-900/60 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/5">
+                        <div class="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"/></svg>
+                        </div>
+                        <h3 class="font-bold text-white mb-1">2. Detect &amp; Sync</h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">Argo CD detecta el drift y reconcilia el estado deseado vs. el actual.</p>
+                    </div>
+    
+                    <!-- Paso 3 -->
+                    <div class="animate-slide-up delay-400 group relative p-6 rounded-2xl border border-slate-800 bg-slate-900/60 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/5">
+                        <div class="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-2.25-1.313M21 7.5v2.25m0-2.25l-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3l2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75l2.25-1.313M12 21.75V19.5m0 2.25l-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25"/></svg>
+                        </div>
+                        <h3 class="font-bold text-white mb-1">3. Deploy</h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">Kubernetes aplica los manifiestos y despliega 3 réplicas del Pod.</p>
+                    </div>
+    
+                    <!-- Paso 4 -->
+                    <div class="animate-slide-up delay-600 group relative p-6 rounded-2xl border border-slate-800 bg-slate-900/60 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/5">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform animate-pulse-ring">
+                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                        </div>
+                        <h3 class="font-bold text-white mb-1">4. Healthy</h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">La aplicación queda disponible con self-healing y alta disponibilidad.</p>
+                    </div>
+                </div>
+            </section>
+    
+            <!-- ════════════════════════════════════════════
+                 ESTADO DE LOS PODS (simulado)
+            ════════════════════════════════════════════ -->
+            <section class="max-w-6xl mx-auto px-6 pb-16">
+                <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-8">Estado del Clúster — 3 Réplicas</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div class="animate-float p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-mono text-xs text-slate-400">pod/static-web-...-α</span>
+                            <span class="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Running
+                            </span>
+                        </div>
+                        <div class="text-xs text-slate-500 space-y-1">
+                            <p>Image: <span class="text-slate-300 font-mono">nginx:alpine</span></p>
+                            <p>Port: <span class="text-slate-300 font-mono">80/TCP</span></p>
+                            <p>Node: <span class="text-slate-300 font-mono">controlplane</span></p>
+                        </div>
+                    </div>
+                    <div class="animate-float delay-200 p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-mono text-xs text-slate-400">pod/static-web-...-β</span>
+                            <span class="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Running
+                            </span>
+                        </div>
+                        <div class="text-xs text-slate-500 space-y-1">
+                            <p>Image: <span class="text-slate-300 font-mono">nginx:alpine</span></p>
+                            <p>Port: <span class="text-slate-300 font-mono">80/TCP</span></p>
+                            <p>Node: <span class="text-slate-300 font-mono">controlplane</span></p>
+                        </div>
+                    </div>
+                    <div class="animate-float delay-400 p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/5">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-mono text-xs text-slate-400">pod/static-web-...-γ</span>
+                            <span class="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Running
+                            </span>
+                        </div>
+                        <div class="text-xs text-slate-500 space-y-1">
+                            <p>Image: <span class="text-slate-300 font-mono">nginx:alpine</span></p>
+                            <p>Port: <span class="text-slate-300 font-mono">80/TCP</span></p>
+                            <p>Node: <span class="text-slate-300 font-mono">controlplane</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+    
+            <!-- ════════════════════════════════════════════
+                 TARJETA DE AUTORÍA  (Punto clave de la Rúbrica)
+            ════════════════════════════════════════════ -->
+            <section class="max-w-6xl mx-auto px-6 pb-20">
+                <div class="max-w-xl p-8 rounded-2xl border border-slate-800 bg-slate-900/60 shadow-2xl shadow-black/20 space-y-5">
+                    <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500">Presentado por</h2>
+                    <div>
+                        <p class="text-2xl font-bold text-white">Jhon Edison Hincapie Garcia</p>
+                        <p class="text-teal-400 text-sm font-medium mt-1">Estudiante de Maestría en Arquitectura de Software</p>
+                        <p class="text-slate-500 text-xs mt-1">Politécnico Grancolombiano · Arquitecto de Software en AutoTrust CO</p>
+                    </div>
+    
+                    <!-- Badges de tecnología -->
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        <span class="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">Kubernetes</span>
+                        <span class="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">Argo CD</span>
+                        <span class="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">Nginx</span>
+                        <span class="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">GitOps</span>
+                        <span class="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">Killercoda</span>
+                        <span class="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">Tailwind CSS</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    
+        <!-- ════════════════════════════════════════════
+             FOOTER
+        ════════════════════════════════════════════ -->
+        <footer class="border-t border-slate-800/60 py-6 px-6">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-600">
+                <p>&copy; 2026 AutoTrust CO. Diseñado bajo principios de resiliencia y escalabilidad en la nube.</p>
+                <p class="font-mono text-slate-700">NodePort <span class="text-teal-600">32000</span> · Réplicas <span class="text-teal-600">3</span></p>
+            </div>
+        </footer>
+    
+    </body>
+    
+    </html>
+---
+# ──────────────────────────────────────────────────────────────────────────────
+# 2. Deployment — 3 réplicas de Nginx (Alta Disponibilidad + Self-Healing)
+# ──────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: static-web-deployment
+  namespace: default
+  labels:
+    app: static-web
+    project: autotrust-gitops
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: static-web
+  template:
+    metadata:
+      labels:
+        app: static-web
+        project: autotrust-gitops
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html
+          readOnly: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+      volumes:
+      - name: html-volume
+        configMap:
+          name: web-html-config
+---
+# ──────────────────────────────────────────────────────────────────────────────
+# 3. Service — Exposición vía NodePort (puerto fijo 32000 para Killercoda)
+# ──────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: static-web-service
+  namespace: default
+  labels:
+    app: static-web
+    project: autotrust-gitops
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 32000
+    protocol: TCP
+  selector:
+    app: static-web
